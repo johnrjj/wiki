@@ -26,7 +26,7 @@ For projects writing in Javascript/typescript, we have published the [@0x/contra
 -   ZRXToken: [0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa](https://kovan.etherscan.io/address/0x2002d3812f58e35f0ea1ffbf80a75a38c32175fa)
 -   CoordinatorRegistry: [0x09fb99968c016a3ff537bf58fb3d9fe55a7975d5](https://kovan.etherscan.io/address/0x09fb99968c016a3ff537bf58fb3d9fe55a7975d5)
 -   Coordinator: [0x2ba02e03ee0029311e0f43715307870a3e701b53](https://kovan.etherscan.io/address/0x2ba02e03ee0029311e0f43715307870a3e701b53)
--   DutchAuction: [0xe5f862f7811af180990025b6259b02feb0a0b8dc](https://etherscan.io/address/0xe5f862f7811af180990025b6259b02feb0a0b8dc)
+-   DutchAuction: [0xe5f862f7811af180990025b6259b02feb0a0b8dc](https://kovan.etherscan.io/address/0xe5f862f7811af180990025b6259b02feb0a0b8dc)
 
 #### Ropsten
 
@@ -40,7 +40,7 @@ For projects writing in Javascript/typescript, we have published the [@0x/contra
 -   ZRXToken: [0xff67881f8d12f372d91baae9752eb3631ff0ed00](https://ropsten.etherscan.io/address/0xff67881f8d12f372d91baae9752eb3631ff0ed00)
 -   CoordinatorRegistry: [0x403cc23e88c17c4652fb904784d1af640a6722d9](https://ropsten.etherscan.io/address/0x403cc23e88c17c4652fb904784d1af640a6722d9)
 -   Coordinator: [0x2ba02e03ee0029311e0f43715307870a3e701b53](https://ropsten.etherscan.io/address/0x2ba02e03ee0029311e0f43715307870a3e701b53)
--   DutchAuction: [0xe5f862f7811af180990025b6259b02feb0a0b8dc](https://etherscan.io/address/0xe5f862f7811af180990025b6259b02feb0a0b8dc)
+-   DutchAuction: [0xe5f862f7811af180990025b6259b02feb0a0b8dc](https://ropsten.etherscan.io/address/0xe5f862f7811af180990025b6259b02feb0a0b8dc)
 
 #### Rinkeby
 
@@ -54,4 +54,4 @@ For projects writing in Javascript/typescript, we have published the [@0x/contra
 -   ZRXToken: [0x2727e688b8fd40b198cd5fe6e408e00494a06f07](https://rinkeby.etherscan.io/address/0x2727e688b8fd40b198cd5fe6e408e00494a06f07)
 -   CoordinatorRegistry: [0x1084b6a398e47907bae43fec3ff4b677db6e4fee](https://rinkeby.etherscan.io/address/0x1084b6a398e47907bae43fec3ff4b677db6e4fee)
 -   Coordinator: [0x2ba02e03ee0029311e0f43715307870a3e701b53](https://rinkeby.etherscan.io/address/0x2ba02e03ee0029311e0f43715307870a3e701b53)
--   DutchAuction: [0xe5f862f7811af180990025b6259b02feb0a0b8dc](https://etherscan.io/address/0xe5f862f7811af180990025b6259b02feb0a0b8dc)
+-   DutchAuction: [0xe5f862f7811af180990025b6259b02feb0a0b8dc](https://rinkeby.etherscan.io/address/0xe5f862f7811af180990025b6259b02feb0a0b8dc)
