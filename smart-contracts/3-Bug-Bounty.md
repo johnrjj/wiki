@@ -28,21 +28,20 @@ The following are examples of types of vulnerabilities that are of interest:
 
 The following contracts are in scope of the bug bounty. Please note that any bugs already reported are considered out of scope.
 
-#### 2.0.0
+#### 2.1
 
-2.0.0. submissions should be based off of the contracts as of commit [965d6098294beb22292090c461151274ee6f9a26](https://github.com/0xProject/0x-monorepo/tree/965d6098294beb22292090c461151274ee6f9a26/packages/contracts/src/2.0.0).
+2.1 submissions should be based off of the contracts as of commit [ff70c5ecfe28eff14e1a372c5e493b8f5363e1d0](https://github.com/0xProject/0x-monorepo/tree/ff70c5ecfe28eff14e1a372c5e493b8f5363e1d0/packages/contracts/src/2.0.0).
 The contracts found in the following directories are considered within scope of this bug bounty:
 
 -   `src/2.0.0/protocol`
 -   `src/2.0.0/utils`
 -   `src/2.0.0/multisig/MultiSigWalletWithTimeLock`
--   `src/2.0.0/extensions/Forwarder`
 
 Security audits of these contracts can be found [here](https://docs.google.com/document/d/1jYv6V21MfCSwCS5fxD6ZyaLWGzkpRSUO0lZpST94XsA/edit) and [here](https://github.com/ConsenSys/0x_audit_report_2018-07-23).
 
 #### MultiAssetProxy
 
-`MultiAssetProxy` submissions should be based off of the contracts as of commit [233869ed80a1f2836834d20adbc478d2e9b26b54](https://github.com/0xProject/0x-monorepo/tree/233869ed80a1f2836834d20adbc478d2e9b26b54/contracts/asset-proxy).
+`MultiAssetProxy` submissions should be based off of the contracts as of commit [c4d9ef9f83508154fe9db35796b6b86aeb0f2240](https://github.com/0xProject/0x-monorepo/tree/c4d9ef9f83508154fe9db35796b6b86aeb0f2240/contracts/asset-proxy).
 The only contract within the scope of this bug bounty is:
 
 -   `contracts/src/MultiAssetProxy.sol`
