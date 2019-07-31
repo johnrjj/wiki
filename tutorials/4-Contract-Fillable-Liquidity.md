@@ -251,6 +251,15 @@ const quote = await swapQuoter.getMarketBuySwapQuoteAsync(
     });
 ```
 
+#### EXECUTING Quotes with web3
+
+`SwapQuoteConsumer` also provides a method to execute a swapQuote with web3. This method can help to power [0x Instant](https://0x.org/instant)-esque consumr products, or build order execution experiences for exchanges like [0x Launchkit Frontend](https://0x.org/launch-kit). 
+
+Execute a swapQuote in the following way: 
+```
+const txHash = await swapQuoteConsumer.executeSwapQuoteOrThrowAsync(quote, {});
+```
+
 ### Conclusion
 
 That’s it, with a flexible suite of tools available, you too can find and fill 0x orders in order to provide your users with UX enhancing token swaps. Please reach out to us in the #questions channel under Dev Support in [Discord](https://discord.gg/d3FTX3M).
