@@ -48,7 +48,7 @@ const apiUrl = 'https://api.relayer.com/v2';
 const swapQuoter = SwapQuoter.getSwapQuoterForStandardRelayerAPIUrl(provider, apiUrl);
 ```
 
-With SwapQuoter you can easily request a ‘quote’ to sell X amount of a token or buy Y amount of a token:
+With `SwapQuoter` you can easily request a ‘quote’ to sell X amount of a token or buy Y amount of a token:
 
 ```
 const makerTokenAddress = '0x...';
@@ -133,7 +133,7 @@ There are many different ways to fill orders; developers in the 0x ecosystem hav
 
 ### Comparing 0x to other on-chain liquidity providers
 
-At a high level, asset-swapper allows users to execute marketBuy or marketSell functions on the 0x protocol with relative ease. Analogously you can think of these functions as ‘swap’ functions in other liquidity provider’s interfaces:
+At a high level, asset-swapper allows users to execute `marketBuy` or `marketSell` functions on the 0x protocol with relative ease. Analogously you can think of these functions as ‘swap’ functions in other liquidity provider’s interfaces:
 
 0x:
 ```
@@ -178,7 +178,7 @@ The two main 0x smart contract interfaces are:
 
 * *Exchange*: The main 0x exchange protocol smart contract interface
     * Specifically asset-swapper interacts with `marketBuyNoThrow` and `marketSellNoThrow` functions
-* *Forwarder*: An extension contract that abstracts wrapping ether and a number of other computations; only supports Weth/ERCXX pairs. Read more about forwarder [here](https://github.com/0xProject/0x-protocol-specification/blob/master/v2/forwarder-specification.md)
+* *Forwarder*: An extension contract that abstracts wrapping ether and a number of other computations; only supports WETH/ERCXX pairs. Read more about forwarder [here](https://github.com/0xProject/0x-protocol-specification/blob/master/v2/forwarder-specification.md)
     * Specifically asset-swapper interacts with `marketBuyWithEth` and `marketSellWithEth` functions
 * (Future) *Coordinator*: An extension contract that enables the filling of coordinator orders; read more about coordinator 0x orders [here](https://github.com/0xProject/0x-protocol-specification/blob/master/v2/coordinator-specification.md).
 
@@ -186,8 +186,8 @@ SwapQuoteConsumer has a router logic that, dependent on the takerAddress and ass
 
 Generally, the router logic works as follows:
 
-* If the taker asset is not wEth, default to providing output for interacting directly with 0x exchange contracts 
-* If the taker asset is wEth and the provided takerAddress custodies enough ether, consumer will provide output for interacting with *Forwarder* extension contract.
+* If the taker asset is not WETH, default to providing output for interacting directly with 0x exchange contracts 
+* If the taker asset is WETH and the provided takerAddress custodies enough ether, consumer will provide output for interacting with *Forwarder* extension contract.
 * Otherwise, default to output for 0x exchange contracts
 
 
@@ -230,7 +230,7 @@ The `quoteInfo` object found in quote can be used to extract the correct cost of
 
 ##### Using SwapQuoteConsumer for orders with fees
 
-As described by the *“Smart” SwapQuoteConsumer Nuances* section, `SwapQuoteConsumer` will prepare output for the most convenient 0x interface for CFL integrators. The current version of `SwapQuoteConsumer` prepares output from quotes with fees differently for each 0x interface:
+As described by the **“Smart” SwapQuoteConsumer Nuances** section, `SwapQuoteConsumer` will prepare output for the most convenient 0x interface for CFL integrators. The current version of `SwapQuoteConsumer` prepares output from quotes with fees differently for each 0x interface:
 
 * *Exchange*: `feeOrders` are dropped and ignored. `SwapQuoteConsumer` will prepare output assuming developer will handle fee operations.
 * *Forwarder*: The `forwarder` extension contract conducts a number of fee related operations on behalf of the user; `SwapQuoteConsumer` will prepare output such that the forwarder will be consuming the `feeOrders`. The developer will not have to conduct any additional operations for fees. 
@@ -253,9 +253,9 @@ const quote = await swapQuoter.getMarketBuySwapQuoteAsync(
 
 #### Executing a SwapQuote with web3
 
-`SwapQuoteConsumer` also provides a method to execute a SwapQuote with web3. This method powers products like [0x Instant](https://0x.org/instant) and helps build order execution experiences for exchanges like [0x Launchkit Frontend](https://0x.org/launch-kit).
+`SwapQuoteConsumer` also provides a method to execute a `SwapQuote` with web3. This method powers products like [0x Instant](https://0x.org/instant) and helps build order execution experiences for exchanges like [0x Launchkit Frontend](https://0x.org/launch-kit).
 
-Execute a swapQuote in the following way: 
+Execute a `SwapQuote` in the following way: 
 ```
 const txHash = await swapQuoteConsumer.executeSwapQuoteOrThrowAsync(quote, {});
 ```
