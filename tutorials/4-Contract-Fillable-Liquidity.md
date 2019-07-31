@@ -251,9 +251,9 @@ const quote = await swapQuoter.getMarketBuySwapQuoteAsync(
     });
 ```
 
-#### EXECUTING Quotes with web3
+#### Executing a SwapQuote with web3
 
-`SwapQuoteConsumer` also provides a method to execute a swapQuote with web3. This method can help to power [0x Instant](https://0x.org/instant)-esque consumr products, or build order execution experiences for exchanges like [0x Launchkit Frontend](https://0x.org/launch-kit). 
+`SwapQuoteConsumer` also provides a method to execute a SwapQuote with web3. This method powers products like [0x Instant](https://0x.org/instant) and helps build order execution experiences for exchanges like [0x Launchkit Frontend](https://0x.org/launch-kit).
 
 Execute a swapQuote in the following way: 
 ```
