@@ -1,4 +1,4 @@
-One of the most powerful things that 0x has to offer is large pool of liquidity with competitive pricing that can be used to implement “contract fillable liquidity”. Any developer that needs exchange functionality from within their own smart contract can use 0x to do so. Here are some examples of contract fillable liquidity:
+One of the most powerful things that 0x has to offer is a large pool of liquidity with competitive pricing that can be used to implement “contract fillable liquidity”. Any developer that needs exchange functionality from within their own smart contract can use 0x to do so. Here are some examples of contract fillable liquidity:
 
 -   A Dapp such as [CDP Saver](https://cdpsaver.com/) that aims to abstract the usage of MKR to interact with your CDP by performing swaps from ETH or DAI to MKR without any thought from the user.
 -   A margin trading protocol, like [dYdX](https://medium.com/dydxderivatives/dai-usdc-market-launches-on-dydx-bde957c48e2e) that wants to give their users access to deep liquidity pools.
@@ -18,96 +18,247 @@ The 0x order is a message with a [specific structure](https://github.com/0xProje
 
 The 0x exchange contract is a smart contract deployed on the [Ethereum mainnet](https://etherscan.io/address/0x4f833a24e1f95d70f028921e27040ca56e09ab0b) and most [testnets](https://0x.org/wiki#Deployed-Addresses). Users send transactions to this smart contract in order to fulfill 0x orders. There are many options for filling orders using the contract, they are listed [here](https://github.com/0xProject/0x-protocol-specification/blob/master/v2/v2-specification.md#filling-orders).
 
+#### 0x extension contracts
+The 0x exchange contract is designed to be easily extendible through varying smart contracts that are referred to as extension contracts. Users can send their orders to an extension contract and expect augmented behavior that is not provided by the core 0x exchange contract. While any developer can develop and leverage extension contracts, the 0x core team has built, audited, and deployed a number of open source extension contracts. Learn more about them [here](https://0x.org/wiki#0x-Extensions).
+
 ### Enabling Contract Fillable Liquidity
 
-Enabling contract fillable liquidity using 0x requires 2 steps:
+Enabling contract fillable liquidity using 0x requires 3 steps:
 
-1. Find 0x orders
-2. Fill 0x orders
+1. Finding 0x orders
+2. Passing 0x orders to a smart contract
+2. Filling 0x orders with the 0x exchange contract
 
-#### Step 1: Find 0x Orders
+The library asset-swapper is a convenience utility package that makes a number of these steps easier for developers. Begin by installing the library:
 
-An easy way to find 0x orders is to query a 0x relayer via the [Standard Relayer REST API specification](http://sra-spec.s3-website-us-east-1.amazonaws.com/). Interactions with these APIs occur entirely off-chain. This means that Ethereum transactions are not involved yet. Try running the command below:
-
-```bash
-curl -i https://api.radarrelay.com/0x/v2/orderbook?baseAssetData=0xf47261b000000000000000000000000089d24a6b4ccb1b6faa2625fe562bdd9a23260359&quoteAssetData=0xf47261b0000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2
+```
+$ yarn install @0x/asset-swapper
 ```
 
-If your request successfully completes, congrats! You have retrieved orders from Radar Relay’s [ETH/DAI market](https://app.radarrelay.com/WETH/DAI).
+#### Step 1: Finding 0x Orders
 
-We also provide a suite of browser-ready JavaScript libraries (complete with TypeScript types) that aid in finding orders. Take a look at the following TypeScript example that combines two of our npm packages, [0x.js](https://github.com/0xProject/0x-monorepo/tree/development/packages/0x.js) and [@0x/connect](https://github.com/0xProject/0x-monorepo/tree/development/packages/connect).
+An easy way to find 0x orders is to query a 0x relayer via the [Standard Relayer REST API specification](http://sra-spec.s3-website-us-east-1.amazonaws.com/). Interactions with these APIs occur entirely off-chain. This means that Ethereum transactions are not involved yet. Asset-swapper provides an easy to use interface that fetches the orders from a provided Standard Relayer REST API and provides a “price” quote for the swap.
 
-```javascript
-import { assetDataUtils } from '0x.js';
-import { HttpClient } from '@0x/connect';
+```
+import { SwapQuoter } from '@0x/asset-swapper';
 
-const mainAsync = async () => {
-    // ERC-20 Token addresses that you are interested in
-    const WETH_TOKEN_ADDRESS = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2';
-    const DAI_TOKEN_ADDRESS = '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359';
-    // Standard relayer api url
-    const RELAYER_API_URL = 'https://api.radarrelay.com/0x/v2/';
-    // Construct client to talk to a relayer
-    const relayer = new HttpClient(RELAYER_API_URL);
-    // Construct wETH/DAI orderbook request
-    const baseAssetData = assetDataUtils.encodeERC20AssetData(WETH_TOKEN_ADDRESS);
-    const quoteAssetData = assetDataUtils.encodeERC20AssetData(DAI_TOKEN_ADDRESS);
-    const orderbookRequest = { baseAssetData, quoteAssetData };
-    // Get wETH/DAI orderbook
-    const response = await httpClient.getOrderbookAsync(orderbookRequest);
-    const buyOrders = response.bids.records.map(r => r.order);
-    const sellOrders = response.asks.records.map(r => r.order);
-    // View orders that want to buy wETH with DAI
-    console.log(buyOrders);
-    // View orders that want to sell wETH for DAI
-    console.log(sellOrders);
-};
-mainAsync().catch(console.error);
+const provider = web3.currentProvider;
+const apiUrl = 'https://api.relayer.com/v2';
+
+const swapQuoter = SwapQuoter.getSwapQuoterForStandardRelayerAPIUrl(provider, apiUrl);
 ```
 
-Note: Before trying to fill an order, make sure to verify its price. By sending the order to the 0x exchange contract for settlement, you are accepting to fill the order at the price specified. In general, it is good to include some validation and pruning between these two steps in order to maximize the chance for a successful fill. Worst case, if you try to fill an expired or invalid order, the Ethereum transaction will revert and no tokens will change hands.
+With SwapQuoter you can easily request a ‘quote’ to sell X amount of a token or buy Y amount of a token:
 
-#### Step 2: Fill 0x Orders
+```
+const makerTokenAddress = '0x...';
+const takerTokenAddress = '0x...';
+const amount = new BigNumber(10);
 
-Now that you have 0x orders, you can use them to help fulfill the token swap needs of your users. By leveraging the 0x smart contracts, we can fill the 0x orders that we have found in step 1.
-
-The 0x exchange contract is available for developers to use within their own smart contracts. This is a powerful feature as it allows you to guarantee atomicity among multiple actions. Check out the following solidity example. In this case, a smart contract first gets a Compound loan for wETH before performing a token swap from wETH to DAI. Because these actions are occurring in the same transactions, if the trade fails, the loan is also reverted.
-
-```javascript
-pragma solidity ^0.5.10;
-pragma experimental ABIEncoderV2;
-
-import "@0x/contracts-exchange-libs/contracts/src/LibOrder.sol";
-import "@0x/contracts-exchange/contracts/src/interfaces/IExchange.sol";
-
-function loanAndFill(
-    uint256 fillAmount,
-    LibOrder.Order[] memory orders,
-    bytes[] memory signatures
-)
-    external
-{
-    // Borrow token
-    CErc20 cToken = CErc20(0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5);
-    require(
-        cToken.borrow(100) == 0,
-        "got collateral?"
+// Requesting a quote for buying 10 units of makerToken
+const quote = await swapQuoter.getMarketBuySwapQuoteAsync(
+    makerTokenAddress,
+    takerTokenAddress,
+    amount
     );
 
-    // Approve 0x ERC20Proxy to spend cToken
-    require(
-        cToken.approve(0x2240dab907db71e64d3e0dba4800c83b5c502d4e, 2**256 - 1),
-        "ERC20 approval required"
+// Requesting a quote to sell 10 units of takerToken for makerToken
+const quote = await swapQuoter.getMarketSellSwapQuoteAsync(
+    makerTokenAddress,
+    takerTokenAddress,
+    amount
     );
+    
+console.log(quote.orders);
+```
 
-    // Fill orders using borrowed tokens
-    IExchange exchange = IExchange(0x4f833a24e1f95d70f028921e27040ca56e09ab0b);
-    exchange.marketBuyOrders(orders, fillAmount, signatures);
+#### Step 2: Passing 0x orders to a smart contract
+
+Up to now, all interactions with the 0x protocol have been off-chain. To consume the output fetched off-chain in a smart contract, it needs to be transmitted on-chain. 
+
+The most intuitive way to pass 0x orders on-chain are via additional parameters passed along a smart contract call. 
+
+Asset-swapper provides a `SwapQuoteConsumer` utility tool that converts a provided quote to a more intuitive format for passing on-chain via parameter or parameter(s).
+
+A number of outputs can be provided by SwapQuoteConsumer: 
+
+* calldata: with a provided quote, the consumer can generate executable calldata for 0x Exchange contracts. Simply pass the calldata on-chain through a `bytes calldata paramName` parameter in any function that requires 0x liquidity.
+* 0x exchange parameter: For developers that want nuanced control of preparing 0x orders before transmitting them on chain, the consumer can provide all the parameters for a valid 0x exchange contract call. Developers can wrap these parameters in a tuple, convert it to a bytes array and into other data formats that work best for the smart contract interface.
+
+Get executable `calldata` from a quote easily with `SwapQuoteConsumer`: 
+
+```
+import { SwapQuoteConsumer } from '@0x/asset-swapper';
+
+const provider = web3.currentProvider;
+
+const swapQuoteConsumer = new SwapQuoteConsumer(provider);
+
+const calldataInfo = await swapQuoteConsumer.getCalldataOrThrowAsync(quote);
+
+const { calldataHexString } = calldataInfo;
+```
+
+Pass the `calldataHexString` on-chain via parameter like so: 
+
+```
+const txHash = await yourSmartContract.methods
+    .liquidityRequiringMethod(..., calldataHexString)
+    .call(...);
+```
+
+#### Step 3: Filling 0x orders with the 0x exchange contract
+
+In your smart contract, you can then call 0x exchange contracts to swap for tokens easily:
+
+```
+contract MyContract {
+
+    public address zeroExExchangeAddress;
+    
+    function liquidityRequiringMethod(..., bytes calldata calldataHexString) {
+        zeroExExchangeAddress.call(calldataHexString);
+        ...
+    }
 }
-
 ```
 
-There are many different ways to fill orders and `marketBuyOrders` is just one of them. For a complete list of options for filling check out the [0x protocol specification](https://github.com/0xProject/0x-protocol-specification/blob/master/v2/v2-specification.md#filling-orders). Each of these options has a corresponding convenience method in the [0x.js library](https://0x.org/docs/contract-wrappers#ExchangeWrapper-fillOrderAsync).
+*Note:* Contract fillable liquidity integrations will be filling 0x orders “on behalf” of the user. Smart contract’s integrating 0x CFL would need to set an allowance for 0x exchange contracts before hand in the constructor or through an admin operated function.
+
+There are many different ways to fill orders; developers in the 0x ecosystem have built a number of ways to interact with 0x protocol on-chain. For a complete list of options for filling 0x orders, check out the [0x protocol specification](https://github.com/0xProject/0x-protocol-specification/blob/master/v2/v2-specification.md#filling-orders). A non-exhaustive list of great 0x integrations can be found here:
+
+* dYdX's exchange wrappers repo: https://github.com/dydxprotocol/exchange-wrappers
+* Set protocol’s exchange wrappers repo: https://github.com/SetProtocol/set-protocol-contracts/tree/master/contracts/core/exchange-wrappers
+* 0x forwarder: https://github.com/0xProject/0x-monorepo/blob/development/contracts/exchange-forwarder/contracts/src/MixinForwarderCore.sol
+
+### Comparing 0x to other on-chain liquidity providers
+
+At a high level, asset-swapper allows users to execute marketBuy or marketSell functions on the 0x protocol with relative ease. Analogously you can think of these functions as ‘swap’ functions in other liquidity provider’s interfaces:
+
+0x:
+```
+(exchange || extension).marketBuy(...) 
+```
+
+uniswap equivalent:
+```
+exchange.tokenToTokenSwapOutput(...)
+```
+
+kyber equivalent:
+```
+No direct equivalent
+```
+
+0x:
+```
+(exchange || extension).marketSell(...) 
+```
+
+uniswap equivalent:
+```
+exchange.tokenToTokenSwapInput(...)
+```
+
+kyber equivalent: 
+```
+kyberNetworkProxyContract.swapTokenToToken(...)
+```
+
+Kyber and Uniswap rely on purely on-chain mechanisms to provide liquidity; 0x, however, sources liquidity from off-chain entities called relayers or from 0x mesh, a peer-to-peer network. With this in mind, a number of off-chain computations must occur to prepare 0x liquidity for use in a smart contract. 
+
+Asset-swapper is a convenience javascript package that does most, if not all, of the off-chain work required for smart contract developers to easily leverage 0x protocol. 
+
+### Advanced Topics related to Asset-swapper
+
+#### "Smart" SwapQuoteConsumer Nuances
+`SwapQuoteConsumer` under the hood determines the best 0x smart contract interfaces to perform the swap specified. 
+
+The two main 0x smart contract interfaces are: 
+
+* *Exchange*: The main 0x exchange protocol smart contract interface
+    * Specifically asset-swapper interacts with `marketBuyNoThrow` and `marketSellNoThrow` functions
+* *Forwarder*: An extension contract that abstracts wrapping ether and a number of other computations; only supports Weth/ERCXX pairs. Read more about forwarder [here](https://github.com/0xProject/0x-protocol-specification/blob/master/v2/forwarder-specification.md)
+    * Specifically asset-swapper interacts with `marketBuyWithEth` and `marketSellWithEth` functions
+* (Future) *Coordinator*: An extension contract that enables the filling of coordinator orders; read more about coordinator 0x orders [here](https://github.com/0xProject/0x-protocol-specification/blob/master/v2/coordinator-specification.md).
+
+SwapQuoteConsumer has a router logic that, dependent on the takerAddress and asset trading pair, determine the best 0x interface to provide output for.
+
+Generally, the router logic works as follows:
+
+* If the taker asset is not wEth, default to providing output for interacting directly with 0x exchange contracts 
+* If the taker asset is wEth and the provided takerAddress custodies enough ether, consumer will provide output for interacting with *Forwarder* extension contract.
+* Otherwise, default to output for 0x exchange contracts
+
+
+Keep in mind that the provided output of SwapQuoteConsumer provides a toAddress parameter, this address can be used to verify which contract the provided output is for. 
+
+##### Ignoring router logic
+If a `useConsumerType` is provided within the options of any call to `SwapQuoteConsumer`, the consumer instance will ignore the "router" logic that determines the best 0x interface and instead provide output for the interface specified by useConsumerType. 
+
+```
+import { ConsumerType } from '@0x/asset-swapper';
+
+const calldataInfo = await swapQuoteConsumer.getCalldataOrThrowAsync(quote,
+    {
+         useConsumerType: ConsumerType.Exchange, 
+         // or ConsumerType.Forwarder
+    });
+```
+
+#### Interacting with fees
+
+Dependent to where the orders are found, a fee, payed with ZRX, can be specified in an order that the taker would need to pay. The taker, for CFL integrations, is a smart contract. Developers will need to maintain a balance of ZRX in the smart contract to pay the fees for any order that contains a fee.
+
+The fee can be offset to users of the smart contract with the provided quote from `SwapQuoter`:
+
+```
+const quote = await swapQuoter.getMarketBuySwapQuoteAsync(
+    makerTokenAddress,
+    takerTokenAddress,
+    amount
+    );
+const feeOrders = quote.feeOrders;
+const bestCaseQuoteInfo = quote.bestCaseQuoteInfo;
+const feeTakerTokenAmount = bestCaseQuoteInfo.feeTakerTokenAmount;
+const totalTakerTokenAmount = bestCaseQuoteInfo.totalTakerTokenAmount;
+```
+
+`FeeOrders` is an additional array of orders to buy ZRX with the takerToken specified when requesting the quote. The smart contract can fill the `feeOrders` to receive the necessary ZRX to fill the `orders` provided by the quote. The quote’s `quoteInfo` object also adjusts the `totalTakerTokenAmount` a user will need to pay to fulfill the swap. 
+
+The `quoteInfo` object found in quote can be used to extract the correct cost of filling the orders for a user. 
+
+##### Using SwapQuoteConsumer for orders with fees
+
+As described by the *“Smart” SwapQuoteConsumer Nuances* section, `SwapQuoteConsumer` will prepare output for the most convenient 0x interface for CFL integrators. The current version of `SwapQuoteConsumer` prepares output from quotes with fees differently for each 0x interface:
+
+* *Exchange*: `feeOrders` are dropped and ignored. `SwapQuoteConsumer` will prepare output assuming developer will handle fee operations.
+* *Forwarder*: The `forwarder` extension contract conducts a number of fee related operations on behalf of the user; `SwapQuoteConsumer` will prepare output such that the forwarder will be consuming the `feeOrders`. The developer will not have to conduct any additional operations for fees. 
+
+##### Ignoring fees in SwapQuoter
+
+Fetching, pruning, and selecting feeOrders can be a costly operation (time-wise). For time-sensitive CFL integrations that sources fee-less 0x orders or handles fees through custom means, an option is provided to ignore all fee operations conducted by `SwapQuoter`.
+
+Simply pass the `shouldDisableRequestingFeeOrders` when requesting a quote from `SwapQuoter`.
+
+```
+const quote = await swapQuoter.getMarketBuySwapQuoteAsync(
+    makerTokenAddress,
+    takerTokenAddress,
+    amount,
+    {
+        shouldDisableRequestingFeeOrders: true,
+    });
+```
+
+#### EXECUTING Quotes with web3
+
+`SwapQuoteConsumer` also provides a method to execute a swapQuote with web3. This method can help to power [0x Instant](https://0x.org/instant)-esque consumr products, or build order execution experiences for exchanges like [0x Launchkit Frontend](https://0x.org/launch-kit). 
+
+Execute a swapQuote in the following way: 
+```
+const txHash = await swapQuoteConsumer.executeSwapQuoteOrThrowAsync(quote, {});
+```
 
 ### Conclusion
 
@@ -116,19 +267,3 @@ That’s it, with a flexible suite of tools available, you too can find and fill
 We also provide a range of other material and documentation to help you get started playing with 0x. Check them out:
 
 -   Get familiar with other 0x key concepts and features by coding right in your browser: https://codesandbox.io/s/github/0xproject/0x-codesandbox
-
--   Check out the 0x starter project for additional examples: https://github.com/0xProject/0x-starter-project
-
-### Faq
-
-#### What if I don’t use JavaScript or TypeScript?
-
-0x smart contracts are deployed on the ethereum mainnet and are free and open for anyone to use. Although we provide convenience libraries in JavaScript, any language is perfectly capable with interacting with ethereum. That being said, we do provide some additional libraries for python tooling here and we are actively working on broader multi-language support in the future.
-
-#### What is 0x Mesh and how will it help me to program token swaps?
-
-0x Mesh (https://blog.0xproject.com/0x-roadmap-2019-part-3-networked-liquidity-0x-mesh-9a24026202b3) helps connect you with other users that have the orders you want. In the near future you will be able to leverage 0x Mesh as an alternative source for finding orders.
-
-#### What is the roadmap for future tooling + resources by the 0x core team?
-
-We are currently working on revamping of our asset-buyer library to support ERC to ERC liquidity needs and provide varying forms of the order for on-chain consumption (calldata, signed orders, parameters for a web3 call). In addition to a new library, we will be adding comprehensive guides to tapping into the output of the new asset-buyer on-chain.
