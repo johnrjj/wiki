@@ -43,7 +43,7 @@ An easy way to find 0x orders is to query a 0x relayer via the [Standard Relayer
 import { SwapQuoter } from '@0x/asset-swapper';
 
 const provider = web3.currentProvider;
-const apiUrl = 'https://api.relayer.com/v2';
+const apiUrl = 'https://api.radarrelay.com/0x/v2/';
 
 const swapQuoter = SwapQuoter.getSwapQuoterForStandardRelayerAPIUrl(provider, apiUrl);
 ```
