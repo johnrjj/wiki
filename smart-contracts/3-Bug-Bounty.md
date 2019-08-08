@@ -48,6 +48,22 @@ The only contract within the scope of this bug bounty is:
 
 The security audit for this contract can be found [here](https://github.com/ConsenSys/0x-audit-report-2018-12).
 
+#### ERC1155Proxy
+
+`ERC1155Proxy` submissions should be based off of the contracts as of commit [77484dc69eea1f4f1a8397590199f3f2489751d2](https://github.com/0xProject/0x-monorepo/tree/77484dc69eea1f4f1a8397590199f3f2489751d2/contracts/asset-proxy).
+The only contract within the scope of this bug bounty is:
+
+-   `contracts/src/ERC1155Proxy.sol`
+
+The security audit for this contract can be found [here](https://github.com/ConsenSys/0x-audit-report-2019-05).
+
+#### StaticCallProxy
+
+`StaticCallProxy` submissions should be based off of the contracts as of commit [54f4727adc6da95f312e3721f44857110555d24c](https://github.com/0xProject/0x-monorepo/tree/54f4727adc6da95f312e3721f44857110555d24c/contracts/asset-proxy).
+The only contract within the scope of this bug bounty is:
+
+-   `contracts/src/StaticCallProxy.sol`
+
 ### Disclosures
 
-Please e-mail all submissions to team@0x.org with the subject "BUG BOUNTY". Your submission should include any steps required to reproduce or exploit the vulnerability. Please allow time for the vulnerability to be fixed before discussing any findings publicly. After receiving a submission, we will contact you with expected timelines for a fix to be implemented.
+Please e-mail all submissions to security@0x.org with the subject "BUG BOUNTY". Your submission should include any steps required to reproduce or exploit the vulnerability. Please allow time for the vulnerability to be fixed before discussing any findings publicly. After receiving a submission, we will contact you with expected timelines for a fix to be implemented.
