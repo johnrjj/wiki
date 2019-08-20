@@ -4,7 +4,7 @@ One of the most powerful things that 0x has to offer is a large pool of liquidit
 -   A margin trading protocol, like [dYdX](https://medium.com/dydxderivatives/dai-usdc-market-launches-on-dydx-bde957c48e2e) that wants to give their users access to deep liquidity pools.
 -   A simple script that sells ETH for DAI on a consistent basis over a week and deposits it into a lending protocol like Compound.
 
-The following content will help explain 0x key concepts and describe how you can start implementing some of these examples, today.
+The following content will help explain 0x key concepts and describe how you can start implementing some of these examples, today. The walkthrough will be leveraging [asset-swapper](/docs/asset-swapper) to do most of the heavy lifting.
 
 ### Key Concepts
 
@@ -29,7 +29,7 @@ Enabling contract fillable liquidity using 0x requires 3 steps:
 2. Passing 0x orders to a smart contract
 2. Filling 0x orders with the 0x exchange contract
 
-The library asset-swapper is a convenience utility package that makes a number of these steps easier for developers. Begin by installing the library:
+The library [asset-swapper](/docs/asset-swapper) is a convenience utility package that makes a number of these steps easier for developers. Begin by installing the library:
 
 ```
 $ yarn install @0x/asset-swapper
@@ -37,7 +37,7 @@ $ yarn install @0x/asset-swapper
 
 #### Step 1: Finding 0x Orders
 
-An easy way to find 0x orders is to query a 0x relayer via the [Standard Relayer REST API specification](http://sra-spec.s3-website-us-east-1.amazonaws.com/). Interactions with these APIs occur entirely off-chain. This means that Ethereum transactions are not involved yet. Asset-swapper provides an easy to use interface that fetches the orders from a provided Standard Relayer REST API and provides a “price” quote for the swap.
+An easy way to find 0x orders is to query a 0x relayer via the [Standard Relayer REST API specification](http://sra-spec.s3-website-us-east-1.amazonaws.com/). Interactions with these APIs occur entirely off-chain. This means that Ethereum transactions are not involved yet. [Asset-swapper](/docs/asset-swapper) provides an easy to use interface that fetches the orders from a provided Standard Relayer REST API and provides a “price” quote for the swap.
 
 ```
 import { SwapQuoter } from '@0x/asset-swapper';
@@ -78,7 +78,7 @@ Up to now, all interactions with the 0x protocol have been off-chain. To consume
 
 The most intuitive way to pass 0x orders on-chain are via additional parameters passed along a smart contract call. 
 
-Asset-swapper provides a `SwapQuoteConsumer` utility tool that converts a provided quote to a more intuitive format for passing on-chain via parameter or parameter(s).
+[Asset-swapper](/docs/asset-swapper) provides a `SwapQuoteConsumer` utility tool that converts a provided quote to a more intuitive format for passing on-chain via parameter or parameter(s).
 
 A number of outputs can be provided by SwapQuoteConsumer: 
 
@@ -133,7 +133,7 @@ There are many different ways to fill orders; developers in the 0x ecosystem hav
 
 ### Comparing 0x to other on-chain liquidity providers
 
-At a high level, asset-swapper allows users to execute `marketBuy` or `marketSell` functions on the 0x protocol with relative ease. Analogously you can think of these functions as ‘swap’ functions in other liquidity provider’s interfaces:
+At a high level, [asset-swapper](/docs/asset-swapper) allows users to execute `marketBuy` or `marketSell` functions on the 0x protocol with relative ease. Analogously you can think of these functions as ‘swap’ functions in other liquidity provider’s interfaces:
 
 0x:
 ```
@@ -167,7 +167,7 @@ kyberNetworkProxyContract.swapTokenToToken(...)
 
 Kyber and Uniswap rely on purely on-chain mechanisms to provide liquidity; 0x, however, sources liquidity from off-chain entities called relayers or from 0x mesh, a peer-to-peer network. With this in mind, a number of off-chain computations must occur to prepare 0x liquidity for use in a smart contract. 
 
-Asset-swapper is a convenience javascript package that does most, if not all, of the off-chain work required for smart contract developers to easily leverage 0x protocol. 
+[asset-swapper](/docs/asset-swapper) is a convenience javascript package that does most, if not all, of the off-chain work required for smart contract developers to easily leverage 0x protocol. 
 
 ### Advanced Topics related to Asset-swapper
 
@@ -177,9 +177,9 @@ Asset-swapper is a convenience javascript package that does most, if not all, of
 The two main 0x smart contract interfaces are: 
 
 * *Exchange*: The main 0x exchange protocol smart contract interface
-    * Specifically asset-swapper interacts with `marketBuyNoThrow` and `marketSellNoThrow` functions
+    * Specifically [asset-swapper](/docs/asset-swapper) interacts with `marketBuyNoThrow` and `marketSellNoThrow` functions
 * *Forwarder*: An extension contract that abstracts wrapping ether and a number of other computations; only supports WETH/ERCXX pairs. Read more about forwarder [here](https://github.com/0xProject/0x-protocol-specification/blob/master/v2/forwarder-specification.md)
-    * Specifically asset-swapper interacts with `marketBuyWithEth` and `marketSellWithEth` functions
+    * Specifically [asset-swapper](/docs/asset-swapper) interacts with `marketBuyWithEth` and `marketSellWithEth` functions
 * (Future) *Coordinator*: An extension contract that enables the filling of coordinator orders; read more about coordinator 0x orders [here](https://github.com/0xProject/0x-protocol-specification/blob/master/v2/coordinator-specification.md).
 
 SwapQuoteConsumer has a router logic that, dependent on the takerAddress and asset trading pair, determine the best 0x interface to provide output for.
