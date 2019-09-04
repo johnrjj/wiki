@@ -33,7 +33,7 @@ Enabling contract fillable liquidity using 0x requires 3 steps:
 The library [asset-swapper](/docs/asset-swapper) is a convenience utility package that makes a number of these steps easier for developers. Begin by installing the library:
 
 ```
-$ yarn install @0x/asset-swapper
+$ yarn add @0x/asset-swapper
 ```
 
 #### Step 1: Finding 0x Orders
